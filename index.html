@@ -1,0 +1,705 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>여행블로그</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --green:    #6EC72D;
+    --green-dk: #58A320;
+    --green-lt: #F0FAE6;
+    --green-mid:#D4F0B0;
+    --bg:       #F5F6F8;
+    --card:     #FFFFFF;
+    --text:     #1A1A1A;
+    --sub:      #6B7280;
+    --border:   #E5E7EB;
+    --radius:   5px;
+  }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Pretendard", sans-serif;
+    background: var(--bg);
+    min-height: 100vh;
+    color: var(--text);
+  }
+
+  /* ── 헤더 ── */
+  header {
+    background: var(--green);
+    padding: 36px 24px 32px;
+    position: relative;
+    overflow: hidden;
+  }
+  header::before {
+    content: '';
+    position: absolute;
+    top: -60px; right: -60px;
+    width: 220px; height: 220px;
+    background: rgba(255,255,255,0.12);
+    border-radius: 50%;
+  }
+  header::after {
+    content: '';
+    position: absolute;
+    bottom: -80px; left: -40px;
+    width: 280px; height: 280px;
+    background: rgba(255,255,255,0.07);
+    border-radius: 50%;
+  }
+  .header-inner { position: relative; z-index: 1; max-width: 680px; margin: 0 auto; }
+  .header-label {
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.75);
+    margin-bottom: 10px;
+  }
+  header h1 {
+    font-size: 2rem;
+    font-weight: 900;
+    color: #fff;
+    line-height: 1.2;
+    letter-spacing: -1px;
+  }
+  header h1 span { display: block; }
+  .header-desc {
+    margin-top: 10px;
+    font-size: 0.85rem;
+    color: rgba(255,255,255,0.82);
+    font-weight: 400;
+  }
+
+  /* ── 레이아웃 ── */
+  main { max-width: 680px; margin: 0 auto; padding: 24px 16px 80px; }
+
+  /* ── 섹션 레이블 ── */
+  .section-label {
+    font-size: 0.68rem;
+    font-weight: 800;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--green);
+    margin-bottom: 8px;
+  }
+
+  /* ── 카드 ── */
+  .card {
+    background: var(--card);
+    border-radius: var(--radius);
+    padding: 22px 20px;
+    margin-bottom: 12px;
+    border: 1px solid var(--border);
+  }
+
+  /* ── 입력 요소 ── */
+  label {
+    display: block;
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: var(--sub);
+    margin-bottom: 6px;
+    letter-spacing: 0.3px;
+  }
+  input[type="text"],
+  input[type="date"],
+  textarea,
+  select {
+    width: 100%;
+    padding: 11px 13px;
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius);
+    font-size: 0.93rem;
+    font-family: inherit;
+    color: var(--text);
+    background: var(--bg);
+    outline: none;
+    appearance: none;
+    transition: border-color 0.15s;
+  }
+  input:focus, textarea:focus, select:focus {
+    border-color: var(--green);
+    background: #fff;
+  }
+  textarea { resize: vertical; min-height: 64px; }
+  select {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236B7280' stroke-width='2.5'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 13px center;
+    padding-right: 36px;
+    cursor: pointer;
+  }
+  .field { margin-bottom: 14px; }
+  .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+  /* ── 마이리얼트립 토글 ── */
+  .mrt-card {
+    background: var(--green-lt);
+    border: 1.5px solid var(--green-mid);
+    border-radius: var(--radius);
+    padding: 16px 18px;
+    margin-bottom: 12px;
+  }
+  .mrt-toggle-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    cursor: pointer;
+    user-select: none;
+  }
+  .mrt-toggle-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .mrt-icon {
+    width: 34px; height: 34px;
+    background: var(--green);
+    border-radius: var(--radius);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1rem;
+    flex-shrink: 0;
+  }
+  .mrt-title { font-size: 0.9rem; font-weight: 800; color: var(--text); }
+  .mrt-sub   { font-size: 0.73rem; color: var(--sub); margin-top: 1px; }
+
+  .toggle-pill {
+    width: 44px; height: 26px;
+    background: #CBD5E1;
+    border-radius: 13px;
+    position: relative;
+    transition: background 0.2s;
+    flex-shrink: 0;
+  }
+  .toggle-pill.on { background: var(--green); }
+  .toggle-pill::after {
+    content: '';
+    position: absolute;
+    width: 20px; height: 20px;
+    background: #fff;
+    border-radius: 50%;
+    top: 3px; left: 3px;
+    transition: left 0.2s;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.18);
+  }
+  .toggle-pill.on::after { left: 21px; }
+
+  .mrt-extra {
+    display: none;
+    margin-top: 14px;
+    padding-top: 14px;
+    border-top: 1px solid var(--green-mid);
+  }
+  .mrt-extra.show { display: block; }
+  .mrt-extra-hint {
+    font-size: 0.76rem;
+    color: #4B7A1D;
+    margin-bottom: 10px;
+    font-weight: 500;
+  }
+
+  /* ── 사진 업로드 ── */
+  .upload-zone {
+    border: 2px dashed var(--border);
+    border-radius: var(--radius);
+    padding: 28px 16px;
+    text-align: center;
+    cursor: pointer;
+    position: relative;
+    background: var(--bg);
+    transition: border-color 0.15s, background 0.15s;
+  }
+  .upload-zone:hover, .upload-zone.dragover {
+    border-color: var(--green);
+    background: var(--green-lt);
+  }
+  .upload-zone input {
+    position: absolute; inset: 0;
+    opacity: 0; cursor: pointer; width: 100%;
+    border: none; padding: 0; background: none;
+  }
+  .upload-icon { font-size: 1.8rem; margin-bottom: 6px; }
+  .upload-hint { font-size: 0.82rem; color: var(--sub); line-height: 1.5; }
+  .upload-hint strong { color: var(--green); }
+
+  .photo-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 6px;
+    margin-top: 12px;
+  }
+  .photo-thumb {
+    position: relative;
+    aspect-ratio: 1;
+    border-radius: var(--radius);
+    overflow: hidden;
+    background: var(--border);
+  }
+  .photo-thumb img { width: 100%; height: 100%; object-fit: cover; }
+  .photo-thumb .rm {
+    position: absolute; top: 3px; right: 3px;
+    width: 18px; height: 18px;
+    background: rgba(0,0,0,0.5);
+    border: none; border-radius: 50%;
+    color: #fff; font-size: 0.65rem;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .photo-count { font-size: 0.73rem; color: var(--sub); margin-top: 6px; text-align: right; }
+
+  /* ── 생성 버튼 ── */
+  .btn-generate {
+    width: 100%;
+    padding: 15px;
+    background: var(--green);
+    color: #fff;
+    border: none;
+    border-radius: var(--radius);
+    font-size: 0.97rem;
+    font-weight: 800;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    letter-spacing: -0.2px;
+    transition: background 0.15s, transform 0.1s;
+    margin-top: 4px;
+  }
+  .btn-generate:hover  { background: var(--green-dk); }
+  .btn-generate:active { transform: scale(0.98); }
+  .btn-generate:disabled { opacity: 0.55; cursor: not-allowed; }
+
+  .spinner {
+    width: 17px; height: 17px;
+    border: 2.5px solid rgba(255,255,255,0.3);
+    border-top-color: #fff;
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+    display: none;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ── 결과 ── */
+  #result-card { display: none; }
+
+  .result-meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .result-title { font-size: 0.9rem; font-weight: 800; color: var(--text); }
+  .char-badge {
+    font-size: 0.73rem;
+    background: var(--green-lt);
+    color: var(--green-dk);
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-weight: 700;
+    border: 1px solid var(--green-mid);
+  }
+  .mrt-result-badge {
+    font-size: 0.73rem;
+    background: #FFF7ED;
+    color: #C2410C;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-weight: 700;
+    border: 1px solid #FED7AA;
+  }
+
+  #post-output {
+    width: 100%;
+    min-height: 340px;
+    padding: 14px;
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius);
+    font-size: 0.86rem;
+    line-height: 1.85;
+    font-family: inherit;
+    color: var(--text);
+    background: var(--bg);
+    resize: vertical;
+  }
+
+  .result-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-top: 12px;
+  }
+  .btn-action {
+    padding: 12px;
+    border-radius: var(--radius);
+    font-size: 0.86rem;
+    font-weight: 700;
+    cursor: pointer;
+    border: none;
+    display: flex; align-items: center; justify-content: center; gap: 5px;
+    transition: all 0.15s;
+  }
+  .btn-copy { background: var(--text); color: #fff; }
+  .btn-copy:hover { background: #333; }
+  .btn-copy.copied { background: var(--green); }
+  .btn-regen {
+    background: #fff;
+    color: var(--text);
+    border: 1.5px solid var(--border);
+  }
+  .btn-regen:hover { border-color: var(--green); color: var(--green); }
+
+  .btn-download {
+    grid-column: 1 / -1;
+    background: var(--green-lt);
+    color: var(--green-dk);
+    border: 1.5px solid var(--green-mid);
+    position: relative;
+  }
+  .btn-download:hover { background: var(--green-mid); }
+  .btn-download.downloading { opacity: 0.7; cursor: not-allowed; }
+  .dl-sub {
+    font-size: 0.68rem;
+    font-weight: 500;
+    color: #6B9B3A;
+    margin-left: 4px;
+    opacity: 0.85;
+  }
+
+  /* ── 에러 ── */
+  .error-box {
+    background: #FFF0F0;
+    border: 1.5px solid #FCA5A5;
+    border-radius: var(--radius);
+    padding: 12px 14px;
+    font-size: 0.83rem;
+    color: #DC2626;
+    margin-top: 12px;
+    display: none;
+  }
+
+  /* ── 구분선 ── */
+  .divider { height: 1px; background: var(--border); margin: 18px 0; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <div class="header-label">Travel Blog Agent</div>
+    <h1>
+      <span>여행블로그</span>
+    </h1>
+    <p class="header-desc">사진 분석 · 마이리얼트립 상품 자동 연동</p>
+  </div>
+</header>
+
+<main>
+
+  <!-- 글 정보 -->
+  <div class="section-label">BLOG INFO</div>
+  <div class="card">
+    <div class="field">
+      <label>블로그 주제 *</label>
+      <input type="text" id="topic" placeholder="예: 제주도 협재 카페, 방콕 그랜드하얏트 호텔" />
+    </div>
+    <div class="row2">
+      <div>
+        <label>글 유형</label>
+        <select id="post-type"></select>
+      </div>
+      <div>
+        <label>추가 정보 (선택)</label>
+        <input type="text" id="extra-info" placeholder="예: 1박 15만원, 조식 포함" />
+      </div>
+    </div>
+  </div>
+
+  <!-- 마이리얼트립 -->
+  <div class="section-label">MYREALTRIP</div>
+  <div class="mrt-card">
+    <div class="mrt-toggle-row" onclick="toggleMrt()">
+      <div class="mrt-toggle-left">
+        <div class="mrt-icon">🗺️</div>
+        <div>
+          <div class="mrt-title">마이리얼트립 상품 자동 연동</div>
+          <div class="mrt-sub">실시간 투어·숙소 가격 + 파트너 문구 자동 삽입</div>
+        </div>
+      </div>
+      <div class="toggle-pill" id="mrt-pill"></div>
+    </div>
+    <div class="mrt-extra" id="mrt-extra">
+      <div class="mrt-extra-hint">📌 투어·액티비티는 자동 검색됩니다. 숙소도 불러오려면 날짜를 입력하세요.</div>
+      <div class="row2">
+        <div>
+          <label>체크인</label>
+          <input type="date" id="check-in" />
+        </div>
+        <div>
+          <label>체크아웃</label>
+          <input type="date" id="check-out" />
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 사진 -->
+  <div class="section-label">PHOTOS</div>
+  <div class="card">
+    <div class="field" style="margin-bottom:0">
+      <label>사진 첨부 <span style="color:#aaa;font-weight:400">(최대 10장 · JPG, PNG, HEIC 등)</span></label>
+      <div class="upload-zone" id="upload-zone">
+        <input type="file" id="photo-input" accept="image/*" multiple />
+        <div class="upload-icon">📸</div>
+        <div class="upload-hint">
+          <strong>클릭하거나 드래그</strong>해서 사진을 첨부하세요<br>
+          사진 내용을 분석해 글에 자동 반영해드려요
+        </div>
+      </div>
+      <div class="photo-grid" id="photo-grid"></div>
+      <div class="photo-count" id="photo-count"></div>
+    </div>
+  </div>
+
+  <!-- 생성 버튼 -->
+  <button class="btn-generate" id="btn-generate" onclick="generate()">
+    <span class="spinner" id="spinner"></span>
+    <span id="btn-label">✨ 글 생성하기</span>
+  </button>
+  <div class="error-box" id="error-box"></div>
+
+  <!-- 결과 -->
+  <div class="card" id="result-card" style="margin-top:20px">
+    <div class="result-meta">
+      <span class="result-title">생성된 블로그 글</span>
+      <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">
+        <span class="char-badge" id="char-badge"></span>
+        <span class="mrt-result-badge" id="mrt-result-badge" style="display:none">🗺️ 마이리얼트립 포함</span>
+      </div>
+    </div>
+    <textarea id="post-output" readonly></textarea>
+    <div class="result-actions">
+      <button class="btn-action btn-copy" id="btn-copy" onclick="copyPost()">📋 복사하기</button>
+      <button class="btn-action btn-regen" onclick="generate()">🔄 다시 생성</button>
+      <button class="btn-action btn-download" id="btn-download" onclick="downloadAll()">⬇ 다운로드받기 <span class="dl-sub">이미지 + 텍스트</span></button>
+    </div>
+  </div>
+
+</main>
+
+<script>
+  let selectedFiles = [];
+  let mrtEnabled = false;
+
+  // 글 유형 로드
+  fetch('/post-types').then(r => r.json()).then(types => {
+    const sel = document.getElementById('post-type');
+    Object.entries(types).forEach(([k, v]) => {
+      const opt = document.createElement('option');
+      opt.value = k; opt.textContent = v;
+      sel.appendChild(opt);
+    });
+  });
+
+  // 마이리얼트립 토글
+  function toggleMrt() {
+    mrtEnabled = !mrtEnabled;
+    document.getElementById('mrt-pill').classList.toggle('on', mrtEnabled);
+    document.getElementById('mrt-extra').classList.toggle('show', mrtEnabled);
+  }
+
+  // 드래그앤드롭
+  const zone = document.getElementById('upload-zone');
+  zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('dragover'); });
+  zone.addEventListener('dragleave', () => zone.classList.remove('dragover'));
+  zone.addEventListener('drop', e => {
+    e.preventDefault(); zone.classList.remove('dragover');
+    addFiles(Array.from(e.dataTransfer.files));
+  });
+  document.getElementById('photo-input').addEventListener('change', e => {
+    addFiles(Array.from(e.target.files));
+    e.target.value = '';
+  });
+
+  function addFiles(files) {
+    const imgs = files.filter(f => f.type.startsWith('image/') || /\.(heic|heif)$/i.test(f.name));
+    imgs.slice(0, 10 - selectedFiles.length).forEach(f => selectedFiles.push(f));
+    renderThumbs();
+  }
+
+  function renderThumbs() {
+    const grid = document.getElementById('photo-grid');
+    grid.innerHTML = '';
+    selectedFiles.forEach((file, i) => {
+      const wrap = document.createElement('div'); wrap.className = 'photo-thumb';
+      const img  = document.createElement('img'); img.src = URL.createObjectURL(file);
+      const btn  = document.createElement('button'); btn.className = 'rm'; btn.textContent = '✕';
+      btn.onclick = () => { selectedFiles.splice(i, 1); renderThumbs(); };
+      wrap.appendChild(img); wrap.appendChild(btn); grid.appendChild(wrap);
+    });
+    document.getElementById('photo-count').textContent =
+      selectedFiles.length > 0 ? `${selectedFiles.length}장 선택됨` : '';
+  }
+
+  // 글 생성
+  async function generate() {
+    const topic = document.getElementById('topic').value.trim();
+    if (!topic) { alert('블로그 주제를 입력해주세요.'); return; }
+
+    setLoading(true); hideError();
+
+    const fd = new FormData();
+    fd.append('topic', topic);
+    fd.append('post_type', document.getElementById('post-type').value);
+    fd.append('extra_info', document.getElementById('extra-info').value.trim());
+    fd.append('use_mrt', mrtEnabled ? 'true' : 'false');
+    fd.append('check_in',  document.getElementById('check-in').value  || '');
+    fd.append('check_out', document.getElementById('check-out').value || '');
+    selectedFiles.forEach(f => fd.append('photos', f));
+
+    try {
+      const res  = await fetch('/generate', { method: 'POST', body: fd });
+      const data = await res.json();
+
+      if (data.success) {
+        document.getElementById('post-output').value = data.post;
+        document.getElementById('char-badge').textContent = `공백 제외 ${data.char_count.toLocaleString()}자`;
+        const mrtBadge = document.getElementById('mrt-result-badge');
+        mrtBadge.style.display = data.mrt_included ? 'inline-block' : 'none';
+        document.getElementById('result-card').style.display = 'block';
+        document.getElementById('result-card').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        resetCopyBtn();
+      } else {
+        showError(data.error || '알 수 없는 오류가 발생했습니다.');
+      }
+    } catch {
+      showError('서버 연결에 실패했습니다. 앱이 실행 중인지 확인해주세요.');
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  function copyPost() {
+    navigator.clipboard.writeText(document.getElementById('post-output').value).then(() => {
+      const btn = document.getElementById('btn-copy');
+      btn.textContent = '✅ 복사 완료!';
+      btn.classList.add('copied');
+      setTimeout(resetCopyBtn, 2500);
+    });
+  }
+
+  function resetCopyBtn() {
+    const btn = document.getElementById('btn-copy');
+    btn.textContent = '📋 복사하기';
+    btn.classList.remove('copied');
+  }
+
+  async function downloadAll() {
+    const text = document.getElementById('post-output').value;
+    if (!text.trim()) return;
+
+    const topic = document.getElementById('topic').value.trim() || '블로그글';
+    const btn = document.getElementById('btn-download');
+    btn.classList.add('downloading');
+    btn.textContent = '⏳ 저장 중...';
+
+    // 1. TXT 다운로드
+    const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
+    const txtUrl = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = txtUrl; a.download = topic + '.txt'; a.click();
+    URL.revokeObjectURL(txtUrl);
+
+    // 2. PNG 이미지 다운로드 (Canvas 렌더링)
+    await new Promise(resolve => setTimeout(resolve, 300));
+    const lines = text.split('\n');
+    const fontSize = 15;
+    const lineHeight = 22;
+    const padding = 36;
+    const maxWidth = 720;
+    const contentWidth = maxWidth - padding * 2;
+
+    // 줄바꿈 처리 (너무 긴 줄 자동 분리)
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+    ctx.font = `${fontSize}px -apple-system, "Apple SD Gothic Neo", sans-serif`;
+
+    const wrappedLines = [];
+    for (const line of lines) {
+      if (line === '') { wrappedLines.push(''); continue; }
+      let cur = '';
+      for (const char of line) {
+        if (ctx.measureText(cur + char).width > contentWidth) {
+          wrappedLines.push(cur);
+          cur = char;
+        } else {
+          cur += char;
+        }
+      }
+      if (cur) wrappedLines.push(cur);
+    }
+
+    const totalHeight = padding * 2 + wrappedLines.length * lineHeight + 60;
+    canvas.width = maxWidth;
+    canvas.height = totalHeight;
+
+    // 배경
+    ctx.fillStyle = '#FFFFFF';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    // 상단 녹색 바
+    ctx.fillStyle = '#6EC72D';
+    ctx.fillRect(0, 0, canvas.width, 8);
+
+    // 본문 텍스트
+    ctx.font = `${fontSize}px -apple-system, "Apple SD Gothic Neo", sans-serif`;
+    ctx.fillStyle = '#1A1A1A';
+    let y = padding + 28;
+    const firstLine = wrappedLines[0];
+    if (firstLine) {
+      ctx.font = `bold ${fontSize + 2}px -apple-system, "Apple SD Gothic Neo", sans-serif`;
+      ctx.fillText(firstLine, padding, y);
+      y += lineHeight + 6;
+      ctx.font = `${fontSize}px -apple-system, "Apple SD Gothic Neo", sans-serif`;
+    }
+    for (let i = 1; i < wrappedLines.length; i++) {
+      ctx.fillText(wrappedLines[i], padding, y);
+      y += lineHeight;
+    }
+
+    // 하단 워터마크
+    ctx.fillStyle = '#9CA3AF';
+    ctx.font = '12px sans-serif';
+    ctx.fillText('여행블로그', padding, canvas.height - 14);
+
+    canvas.toBlob(imgBlob => {
+      const imgUrl = URL.createObjectURL(imgBlob);
+      const imgA = document.createElement('a');
+      imgA.href = imgUrl; imgA.download = topic + '.png'; imgA.click();
+      URL.revokeObjectURL(imgUrl);
+
+      btn.classList.remove('downloading');
+      btn.innerHTML = '✅ 저장 완료! <span class="dl-sub">이미지 + 텍스트</span>';
+      setTimeout(() => {
+        btn.innerHTML = '⬇ 다운로드받기 <span class="dl-sub">이미지 + 텍스트</span>';
+      }, 2500);
+    }, 'image/png');
+  }
+
+  function setLoading(on) {
+    document.getElementById('btn-generate').disabled = on;
+    document.getElementById('spinner').style.display = on ? 'block' : 'none';
+    document.getElementById('btn-label').textContent = on ? '글 생성 중...' : '✨ 글 생성하기';
+  }
+
+  function showError(msg) {
+    const b = document.getElementById('error-box');
+    b.textContent = '❌ ' + msg; b.style.display = 'block';
+  }
+  function hideError() { document.getElementById('error-box').style.display = 'none'; }
+</script>
+</body>
+</html>
