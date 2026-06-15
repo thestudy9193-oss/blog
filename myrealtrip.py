@@ -89,7 +89,7 @@ def format_hotels_text(hotels: list[dict]) -> str:
     for h in hotels:
         name = h.get("itemName", "")
         price = h.get("salePrice", 0)
-        stars = "★" * int(h.get("starRating", 0))
+        stars = "★" * int(h.get("starRating") or 0)
         score = h.get("reviewScore", "")
         count = h.get("reviewCount", 0)
         url = h.get("productUrl", "")
