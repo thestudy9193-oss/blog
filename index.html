@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>여행블로그</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -484,7 +485,7 @@
     <div class="result-actions">
       <button class="btn-action btn-copy" id="btn-copy" onclick="copyPost()">📋 복사하기</button>
       <button class="btn-action btn-regen" onclick="generate()">🔄 다시 생성</button>
-      <button class="btn-action btn-download" id="btn-download" onclick="downloadAll()">⬇ 다운로드받기 <span class="dl-sub">이미지 + 텍스트</span></button>
+      <button class="btn-action btn-download" id="btn-download" onclick="downloadAll()">⬇ 다운로드받기 <span class="dl-sub">ZIP (사진 + 텍스트)</span></button>
     </div>
   </div>
 
@@ -606,87 +607,27 @@
     btn.classList.add('downloading');
     btn.textContent = '⏳ 저장 중...';
 
-    // 1. TXT 다운로드
-    const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
-    const txtUrl = URL.createObjectURL(blob);
+    const zip = new JSZip();
+    zip.file(topic + '.txt', text);
+
+    for (let i = 0; i < selectedFiles.length; i++) {
+      const file = selectedFiles[i];
+      const ext = file.name.split('.').pop() || 'jpg';
+      const num = String(i + 1).padStart(2, '0');
+      zip.file(`photo_${num}.${ext}`, file);
+    }
+
+    const zipBlob = await zip.generateAsync({ type: 'blob' });
+    const url = URL.createObjectURL(zipBlob);
     const a = document.createElement('a');
-    a.href = txtUrl; a.download = topic + '.txt'; a.click();
-    URL.revokeObjectURL(txtUrl);
+    a.href = url; a.download = topic + '.zip'; a.click();
+    URL.revokeObjectURL(url);
 
-    // 2. PNG 이미지 다운로드 (Canvas 렌더링)
-    await new Promise(resolve => setTimeout(resolve, 300));
-    const lines = text.split('\n');
-    const fontSize = 15;
-    const lineHeight = 22;
-    const padding = 36;
-    const maxWidth = 720;
-    const contentWidth = maxWidth - padding * 2;
-
-    // 줄바꿈 처리 (너무 긴 줄 자동 분리)
-    const canvas = document.createElement('canvas');
-    const ctx = canvas.getContext('2d');
-    ctx.font = `${fontSize}px -apple-system, "Apple SD Gothic Neo", sans-serif`;
-
-    const wrappedLines = [];
-    for (const line of lines) {
-      if (line === '') { wrappedLines.push(''); continue; }
-      let cur = '';
-      for (const char of line) {
-        if (ctx.measureText(cur + char).width > contentWidth) {
-          wrappedLines.push(cur);
-          cur = char;
-        } else {
-          cur += char;
-        }
-      }
-      if (cur) wrappedLines.push(cur);
-    }
-
-    const totalHeight = padding * 2 + wrappedLines.length * lineHeight + 60;
-    canvas.width = maxWidth;
-    canvas.height = totalHeight;
-
-    // 배경
-    ctx.fillStyle = '#FFFFFF';
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-    // 상단 녹색 바
-    ctx.fillStyle = '#6EC72D';
-    ctx.fillRect(0, 0, canvas.width, 8);
-
-    // 본문 텍스트
-    ctx.font = `${fontSize}px -apple-system, "Apple SD Gothic Neo", sans-serif`;
-    ctx.fillStyle = '#1A1A1A';
-    let y = padding + 28;
-    const firstLine = wrappedLines[0];
-    if (firstLine) {
-      ctx.font = `bold ${fontSize + 2}px -apple-system, "Apple SD Gothic Neo", sans-serif`;
-      ctx.fillText(firstLine, padding, y);
-      y += lineHeight + 6;
-      ctx.font = `${fontSize}px -apple-system, "Apple SD Gothic Neo", sans-serif`;
-    }
-    for (let i = 1; i < wrappedLines.length; i++) {
-      ctx.fillText(wrappedLines[i], padding, y);
-      y += lineHeight;
-    }
-
-    // 하단 워터마크
-    ctx.fillStyle = '#9CA3AF';
-    ctx.font = '12px sans-serif';
-    ctx.fillText('여행블로그', padding, canvas.height - 14);
-
-    canvas.toBlob(imgBlob => {
-      const imgUrl = URL.createObjectURL(imgBlob);
-      const imgA = document.createElement('a');
-      imgA.href = imgUrl; imgA.download = topic + '.png'; imgA.click();
-      URL.revokeObjectURL(imgUrl);
-
-      btn.classList.remove('downloading');
-      btn.innerHTML = '✅ 저장 완료! <span class="dl-sub">이미지 + 텍스트</span>';
-      setTimeout(() => {
-        btn.innerHTML = '⬇ 다운로드받기 <span class="dl-sub">이미지 + 텍스트</span>';
-      }, 2500);
-    }, 'image/png');
+    btn.classList.remove('downloading');
+    btn.innerHTML = '✅ 저장 완료! <span class="dl-sub">이미지 + 텍스트</span>';
+    setTimeout(() => {
+      btn.innerHTML = '⬇ 다운로드받기 <span class="dl-sub">이미지 + 텍스트</span>';
+    }, 2500);
   }
 
   function setLoading(on) {
